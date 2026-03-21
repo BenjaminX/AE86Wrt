@@ -54,6 +54,9 @@ date '+%Y%m%d%H' > package/base-files/files/etc/openwrt_version
 sed -i "s/NAME=\"*.*\"/NAME=\"AE86Wrt\"/g" package/base-files/files/usr/lib/os-release
 sed -i "s/BUILD_ID=\"*.*\"/BUILD_ID=\"$(date +%Y%m%d) By DaoDao\"/g" package/base-files/files/usr/lib/os-release
 
+sed -i "s/VERSION=\"*.*\"/VERSION=\"25.12\"/g" package/base-files/files/usr/lib/os-release
+sed -i "s/VERSION_ID=\"*.*\"/VERSION_ID=\"25.12\"/g" package/base-files/files/usr/lib/os-release
+
 ##更改主机名
 sed -i "s/hostname='.*'/hostname='AE86Wrt'/g" package/base-files/files/bin/config_generate
 sed -i "s/hostname='.*'/hostname='AE86Wrt'/g" package/base-files/luci2/bin/config_generate
