@@ -49,6 +49,24 @@ jobs:
         cp -f ../diy/lean/lean2.sh ./
         chmod +x ./lean2.sh && ./lean2.sh
 
+        ## R4S 替换为最新 Argon 主题和配置插件
+        rm -rf feeds/luci/themes/luci-theme-argon
+        rm -rf package/feeds/luci/luci-theme-argon
+        rm -rf feeds/2305ipk/theme/luci-theme-argon
+        rm -rf package/feeds/2305ipk/luci-theme-argon
+        rm -rf feeds/2305ipk/theme/luci-app-argon-config
+        rm -rf package/feeds/2305ipk/luci-app-argon-config
+        rm -rf package/lean/luci-app-argon-config
+        rm -rf package/lean/luci-theme-argon
+        rm -rf package/lean/luci-app-syncdial
+        git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
+        git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/lean/luci-app-argon-config
+        git clone --depth 1 https://github.com/BenjaminX/luci-app-syncdial.git package/lean/luci-app-syncdial
+
+        ## R4S 管理IP改为 10.1.1.10
+        sed -i 's/192.168.2.1/10.1.1.10/g' package/base-files/files/bin/config_generate
+        sed -i 's/192.168.2.1/10.1.1.10/g' package/base-files/luci2/bin/config_generate
+
         ## 强制默认rockchip编译内核为6.12
         sed -i "s/KERNEL_PATCHVER:=*.*/KERNEL_PATCHVER:=6.12/g" target/linux/rockchip/Makefile
         sed -i "s/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=6.12/g" target/linux/rockchip/Makefile

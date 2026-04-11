@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sed -i '' 's/^CONFIG_TARGET_MULTI_PROFILE=y/# CONFIG_TARGET_MULTI_PROFILE is not set/' r4s.config)",
+      "Bash(sed -i '' 's/^# CONFIG_TARGET_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s is not set/CONFIG_TARGET_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s=y/' r4s.config)",
+      "Bash(sed -i '' '/^CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_.*=y$/{ /nanopi-r4s/!s/=y/ is not set/; /nanopi-r4s/!s/^CONFIG/# CONFIG/; }' r4s.config)",
+      "Bash(sed -i '' 's/^# CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s is not set/CONFIG_TARGET_DEVICE_rockchip_armv8_DEVICE_friendlyarm_nanopi-r4s=y/' r4s.config)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)"
+    ]
+  }
+}
