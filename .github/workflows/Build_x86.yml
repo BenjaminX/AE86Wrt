@@ -1,0 +1,172 @@
+name: Build_X86
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build X86
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Free disk space
+      uses: xiangfeidexiaohuo/actions@free-disk
+      with:
+        build-mount-path: /home/runner/work/AE86Wrt/AE86Wrt
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        sudo apt-get update -y
+        sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp libnsl-dev nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev python3-setuptools g++ file clang nano genisoimage
+        sudo apt-get clean
+        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+
+    - name: Clone source code
+      env:
+        REPO_URL: https://github.com/coolsnowwolf/lede
+        REPO_BRANCH: master
+      run: |
+        git clone --depth 1 -b ${{ github.ref_name }} https://github.com/BenjaminX/AE86Wrt.git && mv ./AE86Wrt/* ./ && rm -rf ./AE86Wrt
+        ## git clone --depth 1 -b ${{ github.ref_name }} https://github.com/${{ github.repository }}.git AE86Wrt && mv ./AE86Wrt/* ./ && rm -rf ./AE86Wrt
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        cd openwrt
+        cp -f ../diy/lean/lean1.sh ./
+        chmod +x ./lean1.sh && ./lean1.sh
+
+    - name: Update & Install feeds
+      working-directory: ./openwrt
+      run: |
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+
+        cp -f ../diy/lean/lean2.sh ./
+        chmod +x ./lean2.sh && ./lean2.sh
+
+        ## X86 替换为最新 Argon 主题和配置插件
+        rm -rf feeds/luci/themes/luci-theme-argon
+        rm -rf package/feeds/luci/luci-theme-argon
+        rm -rf feeds/2305ipk/theme/luci-theme-argon
+        rm -rf package/feeds/2305ipk/luci-theme-argon
+        rm -rf feeds/2305ipk/theme/luci-app-argon-config
+        rm -rf package/feeds/2305ipk/luci-app-argon-config
+        rm -rf package/lean/luci-app-argon-config
+        rm -rf package/lean/luci-theme-argon
+        rm -rf package/lean/luci-app-syncdial
+        git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
+        git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/lean/luci-app-argon-config
+        git clone --depth 1 https://github.com/BenjaminX/luci-app-syncdial.git package/lean/luci-app-syncdial
+
+        ## X86 管理IP改为 10.1.1.10
+        sed -i 's/192.168.[0-9]\+\.[0-9]\+/10.1.1.10/g' package/base-files/files/bin/config_generate
+
+        ## 强制X86编译内核为6.12
+        sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/g" target/linux/x86/Makefile
+        sed -i "s/KERNEL_TESTING_PATCHVER:=.*/KERNEL_TESTING_PATCHVER:=6.12/g" target/linux/x86/Makefile
+
+        sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='AE86Wrt-X86-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings
+        sed -i "s/OPENWRT_RELEASE=\"*.*\"/OPENWRT_RELEASE=\"AE86Wrt-X86-$(date +%Y%m%d) By DaoDao\"/g" package/lean/default-settings/files/zzz-default-settings
+
+        ## X86-6.12 替换 hostapd
+        git clone https://github.com/xiangfeidexiaohuo/extra-others && rm -rf package/network/services/hostapd && mv extra-others/hostapd package/network/services/ && rm -rf extra-others
+
+
+    - name: Configuration Customization
+      run: |
+        [ -e "./configs/X86/x86_custom.config" ] && mv "./configs/X86/x86_custom.config" openwrt/.config
+        cd openwrt && make defconfig
+
+    - name: Download package
+      working-directory: ./openwrt
+      run: |
+        make download -j$(nproc)
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Build firmware
+      working-directory: ./openwrt
+      run: |
+        make -j$(nproc) V=s
+
+    - name: Assemble Artifact
+      id: assemble_artifact
+      run: |
+        rm -rf ./X86_Out
+        mkdir -p ./X86_Out/
+        cp -a ./openwrt/.config ./X86_Out/x86_custom.config
+
+        getmd5()
+        {
+        md5sum=`md5sum $1`
+        md5=`echo ${md5sum% *}`
+        md5=`echo ${md5:0:10}`
+        }
+
+        rom=openwrt/bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz
+        getmd5 $rom
+        cp -a $rom ./X86_Out/AE86Wrt-X86-6.12-$(date +%Y%m%d)_${md5}.img.gz
+
+        rom=openwrt/bin/targets/x86/64/openwrt-x86-64-generic-rootfs.tar.gz
+        getmd5 $rom
+        cp -a $rom ./X86_Out/AE86Wrt-X86-6.12-rootfs-$(date +%Y%m%d)_${md5}.tar.gz
+
+
+    - name: Upload Firmware
+      uses: actions/upload-artifact@main
+      with:
+        name: X86-Firmware
+        path: X86_Out/AE86Wrt-*.img.gz
+
+    - name: Upload Rootfs
+      uses: actions/upload-artifact@main
+      with:
+        name: X86-ROOTFS
+        path: X86_Out/AE86Wrt-*.tar.gz
+
+    - name: Upload Config
+      uses: actions/upload-artifact@main
+      with:
+        name: X86-config
+        path: X86_Out/x86_custom.config
+
+    - name: Upload Packages
+      uses: actions/upload-artifact@main
+      with:
+        name: X86-Packages
+        path: openwrt/bin/packages
+
+  create_release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@main
+        with:
+          path: downloaded_artifacts
+
+      - name: Prepare release assets
+        run: |
+          mkdir -p release_assets
+          find downloaded_artifacts -name "*.img.gz" -exec cp {} release_assets \;
+
+      - name: Generate release info
+        id: release_info
+        run: |
+          echo "release_tag=X86-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
+          echo "release_name=AE86Wrt-X86-6.12内核-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@master
+        with:
+          tag_name: ${{ steps.release_info.outputs.release_tag }}
+          name: ${{ steps.release_info.outputs.release_name }}
+          files: |
+            release_assets/*
+          token: ${{ secrets.GITHUB_TOKEN }}
