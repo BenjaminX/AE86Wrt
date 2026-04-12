@@ -63,9 +63,6 @@ jobs:
         git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/lean/luci-app-argon-config
         git clone --depth 1 https://github.com/BenjaminX/luci-app-syncdial.git package/lean/luci-app-syncdial
 
-        ## X86 管理IP改为 10.1.1.10
-        sed -i 's/192.168.[0-9]\+\.[0-9]\+/10.1.1.10/g' package/base-files/files/bin/config_generate
-
         ## 强制X86编译内核为6.12
         sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/g" target/linux/x86/Makefile
         sed -i "s/KERNEL_TESTING_PATCHVER:=.*/KERNEL_TESTING_PATCHVER:=6.12/g" target/linux/x86/Makefile
