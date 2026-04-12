@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 AE86Wrt is an OpenWrt firmware distribution that builds custom firmware for multiple router platforms via GitHub Actions CI/CD. There is no local build system — all compilation happens in GitHub Actions workflows.
 
 - **Base source:** coolsnowwolf/lede (Lean's LEDE), with some builds using official OpenWrt or hanwckf/immortalwrt-mt798x
-- **Default access:** IP 192.168.2.1 (R4S uses 10.1.1.10), username `root`, no password
 - **Branding:** AE86Wrt, Argon theme, Chinese locale
 
 ## Architecture
