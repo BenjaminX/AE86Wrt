@@ -63,12 +63,20 @@ jobs:
         git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/lean/luci-app-argon-config
         git clone --depth 1 https://github.com/BenjaminX/luci-app-syncdial.git package/lean/luci-app-syncdial
 
+        ## 恢复 lean2.sh 修改的品牌标识为 OpenWrt/LEDE 原始值
+        sed -i "s/DISTRIB_ID='AE86Wrt'/DISTRIB_ID='OpenWrt'/g" package/base-files/files/etc/openwrt_release
+        sed -i "s/NAME=\"AE86Wrt\"/NAME=\"OpenWrt\"/g" package/base-files/files/usr/lib/os-release
+        sed -i "s/hostname='AE86Wrt'/hostname='OpenWrt'/g" package/base-files/files/bin/config_generate
+        [ -f package/base-files/luci2/bin/config_generate ] && sed -i "s/hostname='AE86Wrt'/hostname='OpenWrt'/g" package/base-files/luci2/bin/config_generate || true
+        sed -i "s/AE86/LEDE/g" package/kernel/mac80211/files/lib/wifi/mac80211.sh
+        git checkout -- package/base-files/files/etc/banner 2>/dev/null || true
+        git checkout -- package/lean/default-settings/files/zzz-default-settings 2>/dev/null || true
+        git checkout -- package/base-files/files/etc/openwrt_version 2>/dev/null || true
+        sed -i "s/BUILD_ID=\".*By DaoDao\"/BUILD_ID=\"$(date +%Y%m%d)\"/g" package/base-files/files/usr/lib/os-release
+
         ## 强制X86编译内核为6.12
         sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/g" target/linux/x86/Makefile
         sed -i "s/KERNEL_TESTING_PATCHVER:=.*/KERNEL_TESTING_PATCHVER:=6.12/g" target/linux/x86/Makefile
-
-        sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='AE86Wrt-X86-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings
-        sed -i "s/OPENWRT_RELEASE=\"*.*\"/OPENWRT_RELEASE=\"AE86Wrt-X86-$(date +%Y%m%d) By DaoDao\"/g" package/lean/default-settings/files/zzz-default-settings
 
         ## X86-6.12 替换 hostapd
         git clone https://github.com/xiangfeidexiaohuo/extra-others && rm -rf package/network/services/hostapd && mv extra-others/hostapd package/network/services/ && rm -rf extra-others
