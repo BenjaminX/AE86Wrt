@@ -60,8 +60,6 @@ jobs:
         rm -rf package/lean/luci-app-argon-config
         rm -rf package/lean/luci-theme-argon
         git clone --depth 1 https://github.com/jerrykuku/luci-theme-argon.git package/lean/luci-theme-argon
-        ## LEDE 不提供虚拟包 wget-any，替换为具体的 wget 包以满足依赖
-        sed -i 's/+wget-any/+wget/g' package/lean/luci-theme-argon/Makefile
         git clone --depth 1 https://github.com/jerrykuku/luci-app-argon-config.git package/lean/luci-app-argon-config
 
         ## 恢复 lean2.sh 修改的品牌标识为 OpenWrt/LEDE 原始值
