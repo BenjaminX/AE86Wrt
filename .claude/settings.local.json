@@ -23,7 +23,11 @@
       "Bash(grep -nE \"\\(Build failed|compile failed|^.*Z make.*Error 1$|^.*Z make: \\\\*\\\\*\\\\*\\)\" /tmp/x86_full.txt)",
       "Bash(echo \"EXIT $?\")",
       "Bash(curl -s https://raw.githubusercontent.com/jerrykuku/luci-theme-argon/master/Makefile)",
-      "Bash(curl -s https://raw.githubusercontent.com/jerrykuku/luci-app-argon-config/master/Makefile)"
+      "Bash(curl -s https://raw.githubusercontent.com/jerrykuku/luci-app-argon-config/master/Makefile)",
+      "Bash(git fetch *)",
+      "Bash(git merge *)",
+      "Bash(git log *)",
+      "Bash(git commit *)"
     ]
   }
 }
