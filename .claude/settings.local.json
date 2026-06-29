@@ -27,7 +27,20 @@
       "Bash(git fetch *)",
       "Bash(git merge *)",
       "Bash(git log *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(git ls-tree *)",
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(unset GH_TOKEN)",
+      "Read(//private/tmp/**)",
+      "Bash(grep -n -iE \"error:|undefined reference|No such file|fatal error|cannot find|Error 1$|recipe for target\" r4s.log)",
+      "WebFetch(domain:wiki.friendlyelec.com)",
+      "WebSearch",
+      "Bash(git --no-pager diff --cached configs/ARM/other/r4s.config)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git --no-pager log -1 --oneline)"
     ]
   }
 }
