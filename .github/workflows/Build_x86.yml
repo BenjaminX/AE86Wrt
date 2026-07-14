@@ -72,11 +72,11 @@ jobs:
         git checkout -- package/base-files/files/etc/openwrt_version 2>/dev/null || true
         sed -i "s/BUILD_ID=\".*By DaoDao\"/BUILD_ID=\"$(date +%Y%m%d)\"/g" package/base-files/files/usr/lib/os-release
 
-        ## 强制X86编译内核为6.18
-        sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.18/g" target/linux/x86/Makefile
-        sed -i "s/KERNEL_TESTING_PATCHVER:=.*/KERNEL_TESTING_PATCHVER:=6.18/g" target/linux/x86/Makefile
+        ## 强制X86编译内核为6.12
+        sed -i "s/KERNEL_PATCHVER:=.*/KERNEL_PATCHVER:=6.12/g" target/linux/x86/Makefile
+        sed -i "s/KERNEL_TESTING_PATCHVER:=.*/KERNEL_TESTING_PATCHVER:=6.12/g" target/linux/x86/Makefile
 
-        ## X86-6.18 替换 hostapd
+        ## X86-6.12 替换 hostapd
         git clone https://github.com/xiangfeidexiaohuo/extra-others && rm -rf package/network/services/hostapd && mv extra-others/hostapd package/network/services/ && rm -rf extra-others
 
 
@@ -113,11 +113,11 @@ jobs:
 
         rom=openwrt/bin/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz
         getmd5 $rom
-        cp -a $rom ./X86_Out/AE86Wrt-X86-6.18-$(date +%Y%m%d)_${md5}.img.gz
+        cp -a $rom ./X86_Out/AE86Wrt-X86-6.12-$(date +%Y%m%d)_${md5}.img.gz
 
         rom=openwrt/bin/targets/x86/64/openwrt-x86-64-generic-rootfs.tar.gz
         getmd5 $rom
-        cp -a $rom ./X86_Out/AE86Wrt-X86-6.18-rootfs-$(date +%Y%m%d)_${md5}.tar.gz
+        cp -a $rom ./X86_Out/AE86Wrt-X86-6.12-rootfs-$(date +%Y%m%d)_${md5}.tar.gz
 
 
     - name: Upload Firmware
@@ -163,7 +163,7 @@ jobs:
         id: release_info
         run: |
           echo "release_tag=X86-$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
-          echo "release_name=AE86Wrt-X86-6.18内核-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+          echo "release_name=AE86Wrt-X86-6.12内核-$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
       - name: Create release
         uses: softprops/action-gh-release@master
