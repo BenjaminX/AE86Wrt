@@ -75,13 +75,6 @@ jobs:
         git checkout -- package/base-files/files/etc/openwrt_version 2>/dev/null || true
         sed -i "s/BUILD_ID=\".*By DaoDao\"/BUILD_ID=\"$(date +%Y%m%d)\"/g" package/base-files/files/usr/lib/os-release
 
-        ## 修复 fibocom_QMI_WWAN 驱动在内核 6.18 下因 hrtimer_init() 被移除导致的编译失败
-        ## (hrtimer_init/timer.function 拆分赋值的旧写法已被上游内核废弃,改为 hrtimer_setup 一步完成)
-        QMI_F_SRC=package/wwan/driver/fibocom_QMI_WWAN/src/qmi_wwan_f.c
-        if [ -f "$QMI_F_SRC" ] && grep -q 'hrtimer_init(&priv->agg_hrtimer' "$QMI_F_SRC"; then
-          perl -0777 -pi -e 's/hrtimer_init\(&priv->agg_hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL\);\s*\n\s*priv->agg_hrtimer\.function = rmnet_usb_tx_agg_timer_cb;/hrtimer_setup(&priv->agg_hrtimer, rmnet_usb_tx_agg_timer_cb, CLOCK_MONOTONIC, HRTIMER_MODE_REL);/' "$QMI_F_SRC"
-        fi
-
         ## 读取上游 rockchip target 当前 KERNEL_PATCHVER,后续文件名跟随上游默认(不硬编码)
         KERNEL_VER=$(sed -nE 's/^KERNEL_PATCHVER:=([^[:space:]]+).*/\1/p' target/linux/rockchip/Makefile)
         echo "KERNEL_VER=$KERNEL_VER" >> $GITHUB_ENV
